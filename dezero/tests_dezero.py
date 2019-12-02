@@ -8,7 +8,7 @@ from dezero.core_simple import add, mul, div, pow
 from dezero.utils import numerical_diff, square, exp
 from contextlib import contextmanager
 
-class SquareTest(unittest.TestCase):
+class DezeroCoreTest(unittest.TestCase):
 
     def setUp(self):
         # 念の為
