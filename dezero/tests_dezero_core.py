@@ -4,7 +4,8 @@ sys.path.append("./")
 import numpy as np
 import unittest
 from dezero import Variable, using_config, no_grad
-from dezero.core import add, mul, div, pow 
+from dezero.core import add, mul, div, pow
+import dezero.functions as F
 from dezero.utils import numerical_diff
 from contextlib import contextmanager
 
@@ -205,6 +206,15 @@ class DezeroCoreTest(unittest.TestCase):
         x.cleargrad()
         gx.backward()
         self.assertEqual(x.grad.data, 44.)
-        
+    
+    def test_tanh(self):
+        x = Variable(np.array(2.0))
+        y = F.tanh(x) 
+        y.backward()
+
+        expected_y = np.tanh(np.array(2.0))
+        self.assertEqual(y.data, expected_y)
+        self.assertEqual(x.grad.data, 1 - expected_y ** 2)
+
 if __name__ == '__main__':
     unittest.main()
