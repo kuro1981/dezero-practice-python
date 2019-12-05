@@ -56,7 +56,8 @@ def cos(x):
 
 class Tanh(Function):
     def forward(self, x):
-        return np.tanh(x)
+        y = np.tanh(x)
+        return y
 
     def backward(self, gy):
         y, = self.outputs
@@ -66,4 +67,21 @@ class Tanh(Function):
 def tanh(x):
     return Tanh()(x)
 
+class Sum(Function):
+    def __init__(self, axis, keepdims):
+        self.axis = axis
+        self.keepdims = keepdims
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        y = x.sum(axis=self.axis, keepdims=self.keepdims)
+        return y
+
+    def backward(self, gy):
+        gy = utils.reshape_sum_backward(gy, self.x_shape,self.axis, self.keepdims)
+        gx = broadcast_to(gy, self.x_shape)
+        return gx
+
+def sum(x, axis=None, keepdims=False):
+    return Sum(axis, keepdims)(x)
 
