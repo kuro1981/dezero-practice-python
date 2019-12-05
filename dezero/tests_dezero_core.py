@@ -8,6 +8,7 @@ from dezero.core import add, mul, div, pow
 import dezero.functions as F
 from dezero.utils import numerical_diff
 from contextlib import contextmanager
+from numpy import testing as npt
 
 class DezeroCoreTest(unittest.TestCase):
 
@@ -242,17 +243,27 @@ class DezeroCoreTest(unittest.TestCase):
         y.backward(retain_grad=True)
         
         self.assertEqual(y.data, 21.0)
-        self.assertEqual(x.grad, np.array([[1,1,1],[1,1,1]]))
+        npt.assert_equal(x.grad.data, np.array([[1,1,1],[1,1,1]]))
 
         x.cleargrad()
         y = F.sum(x, axis=0)
         y.backward()
-        self.assertEqual(y.data, np.arry([5,7,9]))
-        self.assertEqual(x.grad, np.arry([[1,1,1],[1,1,1]))
+        npt.assert_equal(y.data, np.array([5,7,9]))
+        npt.assert_equal(x.grad.data, np.array([[1,1,1],[1,1,1]]))
 
         x = Variable(np.random.randn(2,3,4,5))
         y = x.sum(keepdims=True)
 
-        self.assertEqual(y.shape, (1,1,1,1)
+        self.assertEqual(y.shape, (1,1,1,1))
+
+    def test_broadcast_to(self):
+        x0 = Variable(np.array([1, 2, 3]))
+        x1 = Variable(np.array([10]))
+        y = x0 + x1
+        y.backward()
+
+        npt.assert_equal(y.data, np.array([11,12,13]))
+        npt.assert_equal(x1.grad.data, [3])
+    
 if __name__ == '__main__':
     unittest.main()

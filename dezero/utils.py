@@ -75,3 +75,61 @@ def get_dot_graph(y):
 
     return 'digraph g {\n' + txt + '}'
 
+# =============================================================================
+# Utility functions (numpy magic)
+# =============================================================================
+def sum_to(x, shape):
+    """x が shape の形状になるように和を求める。
+    Parameters
+    ----------
+    x : numpy.ndarray
+    shape : None or int or tuple of ints
+    Returns
+    -------
+    y : numpy.ndarray
+    """
+    ndim = len(shape)
+    lead = x.ndim - ndim
+    lead_axis = tuple(range(lead))
+
+    axis = tuple([i + lead for i, sx in enumerate(shape) if sx == 1])
+    y = x.sum(lead_axis + axis, keepdims=True)
+    if lead > 0:
+        y = y.squeeze(lead_axis)
+    return y
+
+def reshape_sum_backward(gy, x_shape, axis, keepdims):
+    """dezero.functions.sum関数の逆伝播で伝わる勾配を適切な形状に変換する。
+    Parameters
+    ----------
+    gy : dezero.Variable
+        逆伝播で出力側から伝わる勾配
+    x_shape : tuple
+        順伝播のsum関数で使用した入力変数の形状
+    axis : None or int or tuple of ints
+        順伝播のsum関数の引数で指定した axis
+    keepdims : bool
+        順伝播のsum関数の引数で指定した keepdims
+    Returns
+    -------
+    gy : dezero.Variable
+        形状変換後の勾配
+    """
+    ndim = len(x_shape)
+    tupled_axis = axis
+    if axis is None:
+        tupled_axis = None
+    elif not hasattr(axis, 'len'):
+        tupled_axis = (axis,)
+
+    if not (ndim == 0 or tupled_axis is None or keepdims):
+        actual_axis = [a if a >= 0 else a + ndim for a in tupled_axis]
+        shape = list(gy.shape)
+        for a in sorted(actual_axis):
+            shape.insert(a, 1)
+    else:
+        shape = gy.shape
+
+    gy = gy.reshape(shape)  # reshape
+    return gy
+
