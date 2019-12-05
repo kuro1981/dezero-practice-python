@@ -1,6 +1,7 @@
 import numpy as np
 import weakref
 import contextlib
+import dezero
 
 class Config:
     enable_backprop = True
@@ -95,6 +96,19 @@ class Variable:
             return 'variable(None)'
         p = str(self.data).replace('\n', '\n' + ' ' * 9)
         return 'variable({})'.format(p)
+
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return dezero.functions.reshape(self, shape)
+
+    def transpose(self):
+        return dezero.functions.transpose(self)
+
+    @property
+    def T(self):
+        return dezero.functions.transpose(self)
+
 
 class Function:
     def __call__(self, *inputs) -> list:

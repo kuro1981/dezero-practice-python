@@ -216,5 +216,26 @@ class DezeroCoreTest(unittest.TestCase):
         self.assertEqual(y.data, expected_y)
         self.assertEqual(x.grad.data, 1 - expected_y ** 2)
 
+    def test_reshape(self):
+        x = Variable(np.array([[1.,2.,3.],[4.,5.,6.]]))
+        y = F.reshape(x,(6,))
+        y.backward(retain_grad=True)
+        
+        self.assertEqual(y.shape, (6,))
+        self.assertEqual(x.grad.shape, (2,3))
+
+        x = Variable(np.random.randn(1, 2, 3))
+        with self.assertNotRaises(Exception):
+            y = x.reshape((2,3))
+
+    def test_reshape(self):
+        x = Variable(np.array([[1.,2.,3.],[4.,5.,6.]]))
+        y = F.transpose(x)
+        y.backward(retain_grad=True)
+        
+        self.assertEqual(y.shape, (3,2))
+        self.assertEqual(x.grad.shape, (2,3))
+
+
 if __name__ == '__main__':
     unittest.main()
