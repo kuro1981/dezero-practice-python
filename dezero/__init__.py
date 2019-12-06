@@ -18,7 +18,15 @@ else:
     from dezero.core import setup_variable
     from dezero.core import Parameter
     from dezero.layers import Layer
+    from dezero.layers import Model
 
+    import dezero.datasets
+    import dezero.dataset
+    import dezero.optimizers
+    import dezero.functions
+    import dezero.layers
+    import dezero.utils
 
+    
 setup_variable()
 
