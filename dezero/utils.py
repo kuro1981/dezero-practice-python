@@ -1,8 +1,8 @@
 import os
 import numpy as np
-import weakref
 import contextlib
 from dezero.core_simple import Function, Variable
+import urllib.request
 
 class Square(Function):
     def forward(self, x):

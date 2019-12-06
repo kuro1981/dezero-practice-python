@@ -1,4 +1,4 @@
-from dezero import Function, as_variable
+from dezero import Variable, Function, as_variable, as_array
 import numpy as np
 from dezero import utils
 
@@ -262,6 +262,23 @@ class Softmax(Function):
 def softmax(x, axis=1):
     return Softmax(axis)(x)
 
+class ReLU(Function):
+    def forward(self, x):
+        # xp = cuda.get_array_module(x)
+        xp = np
+        y = xp.maximum(x, 0.0)
+        return y
+
+    def backward(self, gy):
+        x, = self.inputs
+        mask = x.data > 0
+        gx = gy * mask
+        return gx
+
+
+def relu(x):
+    return ReLU()(x)
+
 # ======================================================
 # loss function
 # ======================================================
@@ -382,3 +399,39 @@ class Clip(Function):
 def clip(x, x_min, x_max):
     return Clip(x_min, x_max)(x)
 
+# =============================================================================
+# utility function
+# =============================================================================
+def accuracy(y, t):
+    """
+    [WAR] この関数は微分可能ではありません
+    """
+    y, t = as_variable(y), as_variable(t)
+
+    pred = y.data.argmax(axis=1).reshape(t.shape)
+    result = (pred == t.data)
+    acc = result.mean()
+    return Variable(as_array(acc))
+
+# =============================================================================
+# embed_id / dropout / batch_norm
+# =============================================================================
+def embed_id(x, W):
+    return W[x]
+
+
+def dropout(x, dropout_ratio=0.5):
+    x = as_variable(x)
+
+    if dezero.Config.train:
+        xp = cuda.get_array_module(x)
+        mask = xp.random.rand(*x.shape) > dropout_ratio
+        scale = 1.0 - dropout_ratio
+        y = x * mask / scale
+        return y
+    else:
+        return x
+
+
+def batch_nrom(x):
+    pass
