@@ -264,6 +264,16 @@ class DezeroCoreTest(unittest.TestCase):
 
         npt.assert_equal(y.data, np.array([11,12,13]))
         npt.assert_equal(x1.grad.data, [3])
-    
+   
+    def test_matmul(self):
+        x = Variable(np.random.randn(2,3))
+        W = Variable(np.random.randn(3,4))
+        y = F.matmul(x, W)
+        y.backward()
+
+        self.assertEqual(x.grad.shape, (2,3))
+        self.assertEqual(W.grad.shape, (3,4))
+
+
 if __name__ == '__main__':
     unittest.main()
