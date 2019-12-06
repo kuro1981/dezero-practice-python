@@ -12,20 +12,8 @@ class Square(Function):
         gx = 2 * x * gy
         return gx
 
-class Exp(Function):
-    def forward(self, x):
-        return np.exp(x)
-
-    def backward(self, gy):
-        x = self.inputs[0].data
-        gx = np.exp(x) * gy
-        return gx
-
 def square(x):
     return Square()(x)
-
-def exp(x):
-    return Exp()(x)
 
 def numerical_diff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)

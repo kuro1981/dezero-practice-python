@@ -92,7 +92,7 @@ def matmul(x, W):
 class MeanSquaredError(Function):
     def forward(self, x0, x1):
         diff = x0 - x1
-        y = (diff ** 2).sum() / diff.size()
+        y = (diff ** 2).sum() / diff.size
         return y
 
     def backward(self, gy):
@@ -105,6 +105,21 @@ class MeanSquaredError(Function):
 
 def mean_squared_error(x0, x1):
     return MeanSquaredError()(x0, x1)
+
+def mean_squared_error_simple(x0, x1):
+    x0, x1 = as_variable(x0), as_variable(x1)
+    diff = x0 - x1
+    return sum(diff ** 2) / diff.size
+
+def linear(x, W, b=None):
+    x, W = as_variable(x), as_variable(W)
+    t = matmul(x ,W)
+    if b is None:
+        return t
+
+    y = t + b
+    t.data = None
+    return y
 
 def sin(x):
     return Sin()(x)
@@ -151,4 +166,30 @@ class Sum(Function):
 
 def sum(x, axis=None, keepdims=False):
     return Sum(axis, keepdims)(x)
+
+class Exp(Function):
+    def forward(self, x):
+        return x.exp(x)
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y
+        return gx
+
+def exp(x):
+    return Exp()(x)
+
+class Sigmoid(Function):
+    def forward(self, x):
+        # xp = cuda.get_array_module(x)
+        y = 1 / (1 + np.exp(-x))
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy * y * (1 - y)
+        return gx
+
+def sigmoid(x):
+    return Sigmoid()(x)
 
