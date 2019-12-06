@@ -231,6 +231,9 @@ def rdiv(x0, x1):
 def pow(x, c):
     return Pow(c)(x)
 
+class Parameter(Variable):
+    pass
+
 def setup_variable():
     Variable.__mul__ = mul
     Variable.__rmul__ = mul
